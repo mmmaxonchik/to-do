@@ -18,9 +18,11 @@ router = APIRouter()
     response_model=List[UserGet],
     summary="Get all users",
 )
-def get_all(db: Session = Depends(get_session), is_auth: bool = Depends(AuthController.is_authorize)):
-    print(is_auth)
-    return UserController(db).get_all()
+def get_all(
+        session: Session = Depends(get_session),
+        is_auth: bool = Depends(AuthController.is_authorize)
+) -> List[UserGet]:
+    return [UserGet.parse_obj(user) for user in UserController(session).get_all()]
 
 
 # Get user by user_id
@@ -42,8 +44,12 @@ def get_all(db: Session = Depends(get_session), is_auth: bool = Depends(AuthCont
         
     }
 )
-def get_by_id(user_id: int, db: Session = Depends(get_session)):
-    user = UserController(db).get_by_id(user_id)
+def get_by_id(
+        user_id: int,
+        session: Session = Depends(get_session),
+        is_auth: bool = Depends(AuthController.is_authorize)
+) -> UserGet:
+    user = UserController(session).get_by_id(user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return UserGet.parse_obj(user)

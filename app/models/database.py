@@ -1,5 +1,6 @@
 from os import getenv
-from sqlmodel import create_engine, Session, SQLModel
+
+from sqlmodel import create_engine, Session
 
 # Get ENV - FASTAPI_DB_URL from virtual env
 DATABASE_URL = getenv('FASTAPI_DB_URL')
@@ -10,9 +11,11 @@ engine = create_engine(
 )
 
 
-# Function for creation tables
 def create_all_tables():
-    SQLModel.metadata.create_all(bind=engine)
+    from models.todo import TodoModel
+    from models.todo import UserModel
+    TodoModel.metadata.create_all(bind=engine)
+    UserModel.metadata.create_all(bind=engine)
 
 
 # Function for create sessions

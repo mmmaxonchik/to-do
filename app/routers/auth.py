@@ -29,11 +29,14 @@ router = APIRouter()
         }
     }
 )
-def register(user: UserCreate, session: Session = Depends(get_session)):
+def register(
+        user: UserCreate,
+        session: Session = Depends(get_session)
+) -> UserGet:
     user = AuthController(session).register(user)
     if user is None:
         raise HTTPException(status_code=200, detail="User with this email already exists")
-    return user
+    return UserGet.parse_obj(user)
 
 
 @router.post(
@@ -57,7 +60,7 @@ def register(user: UserCreate, session: Session = Depends(get_session)):
 def get_access_token(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
         session: Session = Depends(get_session)
-):
+) -> Token:
     user = AuthController(session).authenticate_user(form_data.username, form_data.password)
     if user is None:
         raise HTTPException(
@@ -65,9 +68,10 @@ def get_access_token(
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return {
-        "access_token": AuthController.create_access_token(
+    
+    return Token(
+        access_token=AuthController.create_access_token(
             data={"sub": user.email}
         ),
-        "token_type": "bearer"
-    }
+        token_type="bearer"
+    )

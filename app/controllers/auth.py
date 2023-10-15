@@ -37,13 +37,13 @@ class AuthController:
         return plain_password == hashed_password
     
     @staticmethod
-    def create_access_token(data: dict):
+    def create_access_token(data: dict) -> str:
         expires_delta = timedelta(JWTSettings.ACCESS_TOKEN_EXPIRE_MINUTES)
         data["exp"] = datetime.utcnow() + expires_delta
         return jwt.encode(data, JWTSettings.SECRET_KEY, JWTSettings.ALGORITHM)
     
     @staticmethod
-    def is_authorize(token: Annotated[str, Depends(OAuth2Scheme)]):
+    def is_authorize(token: Annotated[str, Depends(OAuth2Scheme)]) -> None:
         credentials_exception = HTTPException(
             detail="Could not validate credentials",
             status_code=401,
@@ -76,12 +76,4 @@ class AuthController:
         return user
     
     def register(self, user: UserCreate) -> UserGet | None:
-        user = UserInDB(
-            name=user.name,
-            email=user.email,
-            hashed_password=self.get_password_hash(user.password)
-        )
-        return UserController(self.session).create(user=user)
-    
-    def login(self, user: UserGet) -> UserGet | None:
-        pass
+        return UserController(self.session).create(user, self.get_password_hash(user.password))

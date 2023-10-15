@@ -36,11 +36,12 @@ class UserInDB(UserBase):
 
 
 class UserGet(UserBase):
-    user_id: int = Field(
+    user_id: Optional[int] = Field(
         title="User id",
         description="Id of the current user",
         example=1
     )
     
     class Config:
+        orm_mode = True
         from_attributes = True
