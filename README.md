@@ -38,3 +38,9 @@ pip install -r requirements.txt
 
 + FASTAPI_DB_URL - ссылка на базу данных;
 + SECRET_KEY - секретный ключ для алгоритма, генерации подписи `HS256`
+
+## Запуск сервера
+
+```shell
+uvicorn main:app
+```
